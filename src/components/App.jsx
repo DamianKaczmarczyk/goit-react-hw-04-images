@@ -4,7 +4,7 @@ import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
-
+import Modal from './Modal/Modal';
 
 const STATE = {
   arrayImages: [],
@@ -12,6 +12,9 @@ const STATE = {
   page: 1,
   isLoading: false,
   error: '',
+  showModal: false,
+  imageModal: '',
+  alt: '',
 };
 
 class App extends Component {
@@ -20,27 +23,19 @@ class App extends Component {
   };
   async componentDidMount() {
     await this.getByImage();
-
-    console.log('componentDidMount');
   }
 
-  async componentDidUpdate() {
-    await this.getByImage();
-    console.log('componentDidUpdate');
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const oldState = this.state;
+  async componentDidUpdate(prevProps, prevState) {
     if (
-      nextState.title === oldState.title &&
-      nextState.page === oldState.page
+      prevState.title !== this.state.title ||
+      prevState.page !== this.state.page
     ) {
-      return false;
+      await this.getByImage();
     }
-    return true;
   }
   async getByImage(per_page = 12) {
     try {
+      this.setState({ isLoading: true });
       const moviesByImage = await axios.get('https://pixabay.com/api/', {
         params: {
           key: '39342195-5a46dd0258ec48c84a8f82d33',
@@ -50,7 +45,7 @@ class App extends Component {
         },
       });
       this.setState(prev => ({
-        arrayImages: moviesByImage.data.hits,
+        arrayImages: [...prev.arrayImages, ...moviesByImage.data.hits],
       }));
     } catch (error) {
       this.setState({ error });
@@ -59,12 +54,11 @@ class App extends Component {
     }
   }
 
-
   onSubmit = event => {
-    console.log(event);
-
     return this.setState({
       title: event,
+      arrayImages: [],
+      page: 1,
     });
   };
 
@@ -76,16 +70,20 @@ class App extends Component {
     });
   };
 
+  openModal = (largeImage, alt) => {
+    this.setState({ showModal: true, image: largeImage, alt: alt });
+  };
+  closeModal = () => {
+    this.setState({ showModal: false, image: '', alt: '' });
+  };
+
   render() {
-    console.log(this.state);
-
-    console.log('render');
-    const { arrayImages, isLoading, error } = this.state;
-
+    const { arrayImages, isLoading, error, showModal, image, alt } = this.state;
     return (
       <div
         style={{
           height: '100vh',
+          // display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           fontSize: 40,
@@ -94,15 +92,25 @@ class App extends Component {
       >
         <Searchbar onSubmit={this.onSubmit} />
         {error && <p>Something went wrong: {error.message}</p>}
-        {isLoading && <Loader isLoading={isLoading} />}
-        {arrayImages.length > 0 && <ImageGallery arrayImages={arrayImages} />}
-
-        <Button handlePageUpdate={this.handlePageUpdate} />
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Loader isLoading={isLoading} />
+          </div>
+        )}
+        {arrayImages.length > 0 && (
+          <ImageGallery arrayImages={arrayImages} openModal={this.openModal} />
+        )}
+        {arrayImages.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button handlePageUpdate={this.handlePageUpdate} />
+          </div>
+        )}
+        {showModal && (
+          <Modal closeModal={this.closeModal} image={image} alt={alt} />
+        )}
       </div>
     );
   }
 }
 
 export default App;
-
-

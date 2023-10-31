@@ -9,6 +9,8 @@
     "depcheck": "^1.4.7",
     "eslint": "^8.52.0",
     "eslint-config-react-app": "^7.0.1",
+    "prop-types": "^15.8.1",
+    "proptypes": "^1.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-loader-spinner": "^5.4.5",
