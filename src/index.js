@@ -5,5 +5,7 @@ import './index.css';
 import './components/styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
+    <>
     <App />
+    </>
 );

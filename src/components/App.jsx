@@ -1,96 +1,81 @@
 import axios from 'axios';
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
 
-const STATE = {
-  arrayImages: [],
-  title: '',
-  page: 1,
-  isLoading: false,
-  error: '',
-  showModal: false,
-  imageModal: '',
-  alt: '',
-};
+export default function App() {
+  const [arrayImages, setArrayImages] = useState([]);
+  const [title, setTitle] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [imageModal, setImageModal] = useState('');
+  const [alt, setAlt] = useState('');
 
-class App extends Component {
-  state = {
-    ...STATE,
-  };
-  async componentDidMount() {
-    await this.getByImage();
-  }
+  useEffect(() => {
+    getByImage();
+  }, []);
 
-  async componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.title !== this.state.title ||
-      prevState.page !== this.state.page
-    ) {
-      await this.getByImage();
-    }
-  }
-  async getByImage(per_page = 12) {
+  useEffect(() => {
+    getByImage();
+  }, [title, page]);
+
+  async function getByImage() {
     try {
-      this.setState({ isLoading: true });
+      setIsLoading(true);
       const moviesByImage = await axios.get('https://pixabay.com/api/', {
         params: {
           key: '39342195-5a46dd0258ec48c84a8f82d33',
-          q: `${this.state.title}`,
-          page: `${this.state.page}`,
-          per_page: `${per_page}`,
+          q: title,
+          page: page,
+          per_page: 12,
         },
       });
-      this.setState(prev => ({
-        arrayImages: [...prev.arrayImages, ...moviesByImage.data.hits],
-      }));
+
+      setArrayImages([...arrayImages, ...moviesByImage.data.hits]);
     } catch (error) {
-      this.setState({ error });
+      setError(error);
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   }
 
-  onSubmit = event => {
-    return this.setState({
-      title: event,
-      arrayImages: [],
-      page: 1,
-    });
+  const onSubmit = event => {
+    setTitle(event);
+    setArrayImages([]);
+    setPage(1);
   };
 
-  handlePageUpdate = () => {
-    this.setState(state => {
-      return {
-        page: state.page + 1,
-      };
-    });
+  const handlePageUpdate = () => {
+    setPage(page + 1);
   };
 
-  openModal = (largeImage, alt) => {
-    this.setState({ showModal: true, image: largeImage, alt: alt });
+  const openModal = (largeImage, alt) => {
+    setShowModal(true);
+    setImageModal(largeImage);
+    setAlt(alt);
   };
-  closeModal = () => {
-    this.setState({ showModal: false, image: '', alt: '' });
+  const closeModal = () => {
+    setShowModal(false);
+    setImageModal('');
+    setAlt('');
   };
 
-  render() {
-    const { arrayImages, isLoading, error, showModal, image, alt } = this.state;
     return (
       <div
         style={{
           height: '100vh',
-          // display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           fontSize: 40,
           color: '#010101',
         }}
       >
-        <Searchbar onSubmit={this.onSubmit} />
+        <Searchbar onSubmit={onSubmit} />
         {error && <p>Something went wrong: {error.message}</p>}
         {isLoading && (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -98,19 +83,16 @@ class App extends Component {
           </div>
         )}
         {arrayImages.length > 0 && (
-          <ImageGallery arrayImages={arrayImages} openModal={this.openModal} />
+          <ImageGallery arrayImages={arrayImages} openModal={openModal} />
         )}
         {arrayImages.length > 0 && (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button handlePageUpdate={this.handlePageUpdate} />
+            <Button handlePageUpdate={handlePageUpdate} />
           </div>
         )}
         {showModal && (
-          <Modal closeModal={this.closeModal} image={image} alt={alt} />
+          <Modal closeModal={closeModal} image={imageModal} alt={alt} />
         )}
       </div>
     );
   }
-}
-
-export default App;

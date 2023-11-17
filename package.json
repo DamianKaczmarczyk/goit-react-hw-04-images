@@ -2,7 +2,7 @@
   "name": "react-homework-template",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://DamianKaczmarczyk.github.io/goit-react-hw-03-image-finder/",
+  "homepage": "https://DamianKaczmarczyk.github.io/goit-react-hw-04-image-finder/",
   "dependencies": {
     "axios": "^1.6.0",
     "basiclightbox": "^5.0.4",

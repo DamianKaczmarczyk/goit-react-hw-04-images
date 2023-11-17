@@ -5,7 +5,7 @@ more will load 12 more images.Images are from API pixabay. Code made with react.
 
 # Live:
 
-https://damiankaczmarczyk.github.io/goit-react-hw-03-image-finder/
+https://damiankaczmarczyk.github.io/goit-react-hw-04-image-finder/
 
 # Screenshot:
 
